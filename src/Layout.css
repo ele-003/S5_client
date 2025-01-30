@@ -1,0 +1,30 @@
+.container {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 위쪽을 왼쪽/오른쪽으로 2등분 */
+    grid-template-rows: 1fr 1fr; /* 위쪽(1행), 아래쪽(1행) */
+    height: 100vh;
+    gap: 10px; /* 간격 추가 */
+  }
+  
+  .topLeft {
+    background-color: lightblue;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .topRight {
+    background-color: lightcoral;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .bottom {
+    background-color: lightgreen;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    grid-column: span 2; /* 아래쪽이 전체 너비 차지 */
+  }
+  

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './side.css'; // 스타일 시트를 별도로 분리하는 것을 권장합니다.
+import '../Layout.css'; 
 
 function Sidebar() {
     return (
