@@ -1,33 +1,27 @@
-// App.js
+// src/components/VideoPage.jsx
 import React, { useState, useEffect, useRef } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Home from './pages/Home';
-import SignUp from './pages/SignUp';
-import Header from './components/Header';
-import Upload from './pages/Upload';
-import Sidebar from './components/Sidebar';
-import Stt from './pages/SttVideo';
-import './App.css';  // 예: 여기에 container, topLeft, topRight, bottom 등 grid CSS
-import './Layout.css';
-import VideoViewer from './components/VideoViewer';
-import Track from './components/Track';
+import VideoViewer from './VideoViewer';
+import Track from './Track';
 
-function App() {
-  // =================== 비디오 상태 ===================
-  const [video, setVideo] = useState(null); // { name, url }
+function VideoPage() {
+  // ====== 비디오 상태 ======
+  const [video, setVideo] = useState(null); // { name, url } 형태
   const [selectedFile, setSelectedFile] = useState(null);
   const [error, setError] = useState('');
-  
+
+  // 재생 시간 관련
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
 
+  // <video> DOM에 접근하기 위한 ref
   const videoRef = useRef(null);
 
-  // 파일 선택 핸들러
+  // ----- 파일 선택 -----
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // 비디오 파일인지 체크
       if (file.type.startsWith('video/')) {
         setSelectedFile(file);
         setError('');
@@ -38,7 +32,7 @@ function App() {
     }
   };
 
-  // 업로드
+  // ----- 업로드 로직 (단순 Blob URL) -----
   const handleUpload = () => {
     if (selectedFile) {
       // 기존 blob URL 정리
@@ -46,17 +40,20 @@ function App() {
         URL.revokeObjectURL(video.url);
         setVideo(null);
       }
-      // 새 blob URL 생성
+      // 새 blob URL 만들기
       const videoURL = URL.createObjectURL(selectedFile);
-      setVideo({ name: selectedFile.name, url: videoURL });
-      
-      // 인풋 초기화
+      setTimeout(() => {
+        setVideo({ name: selectedFile.name, url: videoURL });
+      }, 0);
+
+      // 선택 파일 초기화
       setSelectedFile(null);
+      // input[type='file'] DOM 초기화
       document.getElementById('videoInput').value = '';
     }
   };
 
-  // cleanup
+  // 컴포넌트 unmount 시 blob URL 정리
   useEffect(() => {
     return () => {
       if (video && video.url) {
@@ -65,7 +62,7 @@ function App() {
     };
   }, [video]);
 
-  // timeupdate, loadedmetadata 이벤트
+  // 비디오 이벤트 (timeupdate, metadata 로딩)
   useEffect(() => {
     const videoElement = videoRef.current;
     if (videoElement) {
@@ -79,6 +76,7 @@ function App() {
       videoElement.addEventListener('timeupdate', updateTime);
       videoElement.addEventListener('loadedmetadata', updateDuration);
 
+      // cleanup
       return () => {
         videoElement.removeEventListener('timeupdate', updateTime);
         videoElement.removeEventListener('loadedmetadata', updateDuration);
@@ -86,7 +84,7 @@ function App() {
     }
   }, [video]);
 
-  // 재생/멈춤
+  // ----- 재생/멈춤 -----
   const togglePlay = () => {
     const videoElement = videoRef.current;
     if (videoElement) {
@@ -99,7 +97,7 @@ function App() {
     }
   };
 
-  // 슬라이더로 재생 위치 변경
+  // ----- 슬라이더로 재생 위치 이동 -----
   const handleSeek = (e) => {
     const newTime = parseFloat(e.target.value);
     setCurrentTime(newTime);
@@ -109,50 +107,31 @@ function App() {
   };
 
   return (
-    <BrowserRouter>
-      <Header />
-      <div className="container">
-        {/* 왼쪽 상단 영역 */}
-        <div className="topLeft">
-          <Sidebar />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/upload" element={<Upload />} />
-            <Route path="/stt" element={<Stt />} />
-            <Route path="*" element={<h2>404 Not Found</h2>} />
-          </Routes>
-        </div>
+    <div style={{ padding: '1rem' }}>
+      {/* 비디오 업로드/표시 컴포넌트 */}
+      <VideoViewer
+        video={video}
+        selectedFile={selectedFile}
+        error={error}
+        currentTime={currentTime}
+        duration={duration}
+        isPlaying={isPlaying}
+        videoRef={videoRef}
+        handleFileChange={handleFileChange}
+        handleUpload={handleUpload}
+      />
 
-        {/* 오른쪽 상단 영역 */}
-        <div className="topRight">
-          <VideoViewer
-            video={video}
-            selectedFile={selectedFile}
-            error={error}
-            currentTime={currentTime}
-            duration={duration}
-            isPlaying={isPlaying}
-            videoRef={videoRef}
-            handleFileChange={handleFileChange}
-            handleUpload={handleUpload}
-          />
-        </div>
-
-        {/* 하단 영역 */}
-        <div className="bottom">
-          <Track
-            video={video}
-            currentTime={currentTime}
-            duration={duration}
-            isPlaying={isPlaying}
-            togglePlay={togglePlay}
-            handleSeek={handleSeek}
-          />
-        </div>
-      </div>
-    </BrowserRouter>
+      {/* 별도의 컨트롤 UI 컴포넌트 */}
+      <Track
+        video={video}
+        currentTime={currentTime}
+        duration={duration}
+        isPlaying={isPlaying}
+        togglePlay={togglePlay}
+        handleSeek={handleSeek}
+      />
+    </div>
   );
 }
 
-export default App;
+export default VideoPage;
