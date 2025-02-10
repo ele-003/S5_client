@@ -11,13 +11,15 @@ import './App.css';  // 예: 여기에 container, topLeft, topRight, bottom 등 
 import './Layout.css';
 import VideoViewer from './components/VideoViewer';
 import Track from './components/Track';
+import Asd from './components/asd';
+import { VideoProvider } from './components/VideoContext';
 
 function App() {
   // =================== 비디오 상태 ===================
   const [video, setVideo] = useState(null); // { name, url }
   const [selectedFile, setSelectedFile] = useState(null);
   const [error, setError] = useState('');
-  
+
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -49,7 +51,7 @@ function App() {
       // 새 blob URL 생성
       const videoURL = URL.createObjectURL(selectedFile);
       setVideo({ name: selectedFile.name, url: videoURL });
-      
+
       // 인풋 초기화
       setSelectedFile(null);
       document.getElementById('videoInput').value = '';
@@ -114,29 +116,22 @@ function App() {
       <div className="container">
         {/* 왼쪽 상단 영역 */}
         <div className="topLeft">
-          <Sidebar />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/upload" element={<Upload />} />
             <Route path="/stt" element={<Stt />} />
             <Route path="*" element={<h2>404 Not Found</h2>} />
+
           </Routes>
         </div>
 
         {/* 오른쪽 상단 영역 */}
         <div className="topRight">
-          <VideoViewer
-            video={video}
-            selectedFile={selectedFile}
-            error={error}
-            currentTime={currentTime}
-            duration={duration}
-            isPlaying={isPlaying}
-            videoRef={videoRef}
-            handleFileChange={handleFileChange}
-            handleUpload={handleUpload}
-          />
+          <VideoProvider>
+            <VideoViewer />
+            <Asd/>
+          </VideoProvider>
         </div>
 
         {/* 하단 영역 */}
